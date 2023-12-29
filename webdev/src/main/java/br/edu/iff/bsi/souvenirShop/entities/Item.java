@@ -1,16 +1,19 @@
 package br.edu.iff.bsi.souvenirShop.entities;
 
-import java.io.Serializable;
 import java.util.List;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
 
 @Entity
-public class Item implements Serializable {
+public class Item extends Produto {
 	private static final long serialVersionUID = 1L;
 	
 	@Id
@@ -19,15 +22,20 @@ public class Item implements Serializable {
 	private int quantidade;
     private float preço;
 
-	/*@ManyToMany(mappedBy="pedido")
-	private List<Pedido> pedido;*/
-	
-    /*public Item(int id,int quantidade, float preço) {
-        this.id = (long) id;
-        this.quantidade = quantidade;
-        this.preço = preço;
-    }*/
     
+	@ManyToMany
+	@JoinTable(name = "associacao_item_pedido",
+				joinColumns = @JoinColumn(name = "fk_item"),
+				inverseJoinColumns = @JoinColumn(name = "fk_pedido"))
+	private List<Pedido> pedido;
+	
+	
+	/*@ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name="produto_id")
+	//private List<Produto> produtosQueAparece;
+	private List<Produto> produto;*/
+	
+	
     
     
     //gets e sets

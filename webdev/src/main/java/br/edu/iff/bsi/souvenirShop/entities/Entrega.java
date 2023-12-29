@@ -3,6 +3,7 @@ package br.edu.iff.bsi.souvenirShop.entities;
 import java.util.Date;
 import java.io.Serializable;
 
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -18,8 +19,13 @@ public class Entrega implements Serializable {
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
     private Date dataEntrega;
 	
+	
 	@Enumerated(EnumType.ORDINAL)
-	private EntregaForma forma;
+	//@NotNull(message = "Tipo de entrega obrigatoria");
+	@Embedded
+	public void EntregaForma () {
+
+	}
 	
    
 	public Date getData() {
