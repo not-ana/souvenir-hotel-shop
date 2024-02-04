@@ -1,4 +1,4 @@
-package br.edu.iff.bsi.souvenirShop.entities;
+package br.edu.iff.ccc.bsi.souvenirShop.model;
 
 import java.util.Date;
 import java.io.Serializable;

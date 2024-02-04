@@ -1,16 +1,14 @@
-package br.edu.iff.bsi.souvenirShop.entities;
+package br.edu.iff.ccc.bsi.souvenirShop.model;
 
 import java.util.List;
 
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
-import jakarta.persistence.ManyToOne;
 
 @Entity
 public class Item extends Produto {
@@ -40,6 +38,7 @@ public class Item extends Produto {
     
     //gets e sets
     
+
 	public Long getId() {
 		return id;
 	}
@@ -64,10 +63,5 @@ public class Item extends Produto {
 		this.preço = preço;
 	}
 	
-	
-	
-	public Item() {
-		
-	}
-    
+
 }
