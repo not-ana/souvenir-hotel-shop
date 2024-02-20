@@ -1,135 +1,182 @@
 package br.edu.iff.ccc.bsi.souvenirShop.model;
 
+import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
+import jakarta.persistence.Transient;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 @Entity
-public class Pedido extends Item {
+public class Pedido implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
-
+	@Column(name = "id_pedido", unique=true)
     private Long id;
-	private float total;
 	
+	
+	@NotNull
+	@NotEmpty
+	@Column(name = "subtotal", unique=false)
+	@Transient
+	private double subtotal;
+	
+	
+	@NotNull
+	@NotEmpty
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "data_pedido")
-    private Date dataPedido;
-    
-   
-    
-	@ManyToMany
-	@JoinTable(name = "associacao_pedido_item",
-				joinColumns = @JoinColumn(name = "fk_pedido"),
-				inverseJoinColumns = @JoinColumn(name = "fk_item"))
-	private List<Item> item = new ArrayList<>();
-	//criando nossa lista de itens associada a pedidos
+	private LocalDateTime dataPedido;
+
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "data_entrega")
+	private LocalDateTime dataEntrega;
+	
+	
+	@OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL)
+	@JsonManagedReference
+	private List<Item> itens;
+
+	@NotNull
+	@NotEmpty
+	@Size(min = 3, max = 30, message = "Tipo deve ter entre 3 e 30 caracteres")
+	private String formaPagamento;
+	
+	
+	private boolean concluido;
 	
 	
 	@ManyToOne
-	@JoinColumn(name ="entrega_id")
-	private Entrega entrega;
+	@JoinColumn(name = "cliente_id")
+	@JsonIgnore
+	private Cliente cliente;
+	
+	
+	public Pedido() {}
+	
 	
 
 
-	//aqui eu to passando todos os dados de cliente para pedido e dizendo que
-    //o item vai criar um novo array pra cada item solicitado
-    //e retornar dentro de pedido -> que é composto de vários itens + info do comprador
-    /*public Pedido(String nome, String email, String telefone, String endereco) {
-    	super(nome, email, telefone, endereco);
-    	this.item = new ArrayList<>();
-    }
-    */
-    
-	//passando a verificacao de que para o pedido ser valido, o total (nesse caso total em valor) nao pode ser 0
-    /*public Pedido(String email) {
-    	this.total = 0;
-    	this.item = new ArrayList<>();
-    }
-    */
-    
-    
-    /*public String getdataPedido() {
-    	if (dataPedido != null) {
-    		SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-    		return dateFormat.format((dataPedido).getTime());
-    	} else {
-    		return "";
-    	}
-    }*/
-    
-    
-    
+	public Pedido(Cliente cliente, String formaPagamento) {
+		this.cliente = cliente;
+		this.subtotal = 0;
+		this.dataPedido = null;
+		this.dataEntrega = null;
+		this.itens = new ArrayList<>();
+		this.formaPagamento = formaPagamento;
+		this.concluido = false;
+	}
 
-    
-    //gets e sets
+
+
 
 	public Long getId() {
 		return id;
 	}
 
+
 	public void setId(Long id) {
 		this.id = id;
 	}
 
-	public float getTotal() {
-		return total;
+
+	public double getSubtotal() {
+		return subtotal;
 	}
 
-	public void setTotal(float total) {
-		this.total = total;
+
+	public void setSubtotal(double subtotal) {
+		this.subtotal = subtotal;
 	}
 
-	public Date getDataPedido() {
+
+	public LocalDateTime getDataPedido() {
 		return dataPedido;
 	}
 
-	public void setDataPedido(Date dataPedido) {
+
+	public void setDataPedido(LocalDateTime dataPedido) {
 		this.dataPedido = dataPedido;
 	}
+
+
+	public LocalDateTime getDataEntrega() {
+		return dataEntrega;
+	}
+
+
+	public void setDataEntrega(LocalDateTime dataEntrega) {
+		this.dataEntrega = dataEntrega;
+	}
+
+
+	public List<Item> getItens() {
+		return itens;
+	}
+
+
+	public void setItens(List<Item> itens) {
+		this.itens = itens;
+	}
+
+
+	public String getFormaPagamento() {
+		return formaPagamento;
+	}
+
+
+	public void setFormaPagamento(String formaPagamento) {
+		this.formaPagamento = formaPagamento;
+	}
+
+
+	public boolean isConcluido() {
+		return concluido;
+	}
+
+
+	public void setConcluido(boolean concluido) {
+		this.concluido = concluido;
+	}
 	
 	
-    public List<Item> getItem() {
-		return item;
+	public Cliente getCliente() {
+		return cliente;
 	}
 
-
-	public void setItem(List<Item> item) {
-		this.item = item;
-	}
-
-
-	public Entrega getEntrega() {
-		return entrega;
-	}
-
-
-	public void setEntrega(Entrega entrega) {
-		this.entrega = entrega;
+	
+	public void setCliente(Cliente cliente) {
+		this.cliente = cliente;
 	}
 	
-	
-	
-	public Pedido() {
-		
+	public boolean Concluido() {
+		return concluido;
 	}
 
-	public Pedido(String email) {
-
+	public void concluir() {
+		this.concluido = true;
+		this.dataPedido = LocalDateTime.now();
+		this.dataEntrega = LocalDateTime.now();
 	}
-    
+
+
 }

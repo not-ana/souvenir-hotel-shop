@@ -1,67 +1,102 @@
 package br.edu.iff.ccc.bsi.souvenirShop.model;
 
-import java.util.List;
+import java.io.Serializable;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 
 @Entity
-public class Item extends Produto {
+public class Item implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
-	private Long id;
-	private int quantidade;
-    private float preço;
+	@Column(name = "id_item", unique=true)
+    private Long id;
+	
+	@ManyToOne
+	private Produto produto;
+	
+	
 
-    
-	@ManyToMany
-	@JoinTable(name = "associacao_item_pedido",
-				joinColumns = @JoinColumn(name = "fk_item"),
-				inverseJoinColumns = @JoinColumn(name = "fk_pedido"))
-	private List<Pedido> pedido;
+	@ManyToOne
+	@JoinColumn(name = "pedido_id")
+	@JsonBackReference
+	private Pedido pedido;
+	
+
+
+	@NotNull
+	@NotEmpty
+	@Column(name = "quantidade")
+	private int quantidade;
+
+	
+	public Item() {}
 	
 	
-	/*@ManyToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name="produto_id")
-	//private List<Produto> produtosQueAparece;
-	private List<Produto> produto;*/
-	
-	
-    
-    
-    //gets e sets
-    
+
+
+	public Item(Produto produto, int quantidade) {
+		this.produto = produto;
+		this.quantidade = quantidade;
+	}
+
+
+
 
 	public Long getId() {
 		return id;
 	}
 
+
 	public void setId(Long id) {
 		this.id = id;
 	}
+
+
+	public Produto getProduto() {
+		return produto;
+	}
+
+
+	public void setProduto(Produto produto) {
+		this.produto = produto;
+	}
+
+
+	public Pedido getPedido() {
+		return pedido;
+	}
+
+
+	public void setPedido(Pedido pedido) {
+		this.pedido = pedido;
+	}
+
 
 	public int getQuantidade() {
 		return quantidade;
 	}
 
+
 	public void setQuantidade(int quantidade) {
 		this.quantidade = quantidade;
 	}
 
-	public float getPreço() {
-		return preço;
-	}
 
-	public void setPreço(float preço) {
-		this.preço = preço;
-	}
-	
+
+
+
+
 
 }
