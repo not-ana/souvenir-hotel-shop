@@ -1,21 +1,22 @@
 package br.edu.iff.ccc.bsi.souvenirShop.model;
 
 import java.io.Serializable;
-
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import java.util.List;
 
 import jakarta.persistence.Column;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
 @Entity
 public class Item implements Serializable {
+	
 	private static final long serialVersionUID = 1L;
 	
 	@Id
@@ -23,32 +24,46 @@ public class Item implements Serializable {
 	@Column(name = "id_item", unique=true)
     private Long id;
 	
-	@ManyToOne
-	private Produto produto;
-	
-	
-
-	@ManyToOne
-	@JoinColumn(name = "pedido_id")
-	@JsonBackReference
-	private Pedido pedido;
-	
-
-
 	@NotNull
 	@NotEmpty
 	@Column(name = "quantidade")
 	private int quantidade;
 
+	@NotNull
+	@NotEmpty
+	@Column(name = "subtotal")
+	private double subtotal;
 	
-	public Item() {}
 	
-	
+	public List<Pedido> getPedido() {
+		return pedido;
+	}
 
+	public void setPedido(List<Pedido> pedido) {
+		this.pedido = pedido;
+	}
 
-	public Item(Produto produto, int quantidade) {
+	public Produto getProduto() {
+		return produto;
+	}
+
+	public void setProduto(Produto produto) {
 		this.produto = produto;
+	}
+
+
+	@ManyToMany(mappedBy="item")
+	private List<Pedido> pedido;
+	
+	@ManyToOne
+	@JoinColumn(name="id_produto")
+	private Produto produto;
+	
+	
+	public Item(int quantidade, double subtotal) {
+		super();
 		this.quantidade = quantidade;
+		this.subtotal = 0;
 	}
 
 
@@ -63,27 +78,6 @@ public class Item implements Serializable {
 		this.id = id;
 	}
 
-
-	public Produto getProduto() {
-		return produto;
-	}
-
-
-	public void setProduto(Produto produto) {
-		this.produto = produto;
-	}
-
-
-	public Pedido getPedido() {
-		return pedido;
-	}
-
-
-	public void setPedido(Pedido pedido) {
-		this.pedido = pedido;
-	}
-
-
 	public int getQuantidade() {
 		return quantidade;
 	}
@@ -94,9 +88,31 @@ public class Item implements Serializable {
 	}
 
 
+	public double getSubtotal() {
+		return subtotal;
+	}
 
 
+	public void setSubtotal(double subtotal) {
+		this.subtotal = subtotal;
+	}
 
+	/*
+	public void adicionarItem(Produto produto) {
+		this.produto.add(produto);
+		this.quantidade++;
+		this.subtotal = produto.getPreco()*quantidade;
+	}
+	
+	public void removerItem(Produto produto) {
+		this.produto.remove(produto);
+		this.quantidade--;
+		this.subtotal = produto.getPreco()*quantidade;
+	}
 
-
+	public List<Produto> getProduto() {
+		return produto;
+	}
+	*/
+	
 }

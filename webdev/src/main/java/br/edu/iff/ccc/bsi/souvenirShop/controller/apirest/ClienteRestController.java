@@ -1,17 +1,10 @@
 package br.edu.iff.ccc.bsi.souvenirShop.controller.apirest;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -25,8 +18,32 @@ public class ClienteRestController {
 	
 	@Autowired
 	public ClienteService clienteServ;
-
 	
+	
+	@PostMapping("")
+	@ResponseBody
+	@Operation(summary = "Adicionar um cliente")
+	public String addCliente(String nome, String email, String cpf, String senha, String telefone) throws Exception {			
+		return clienteServ.addCliente(new Cliente(nome, email, cpf, senha, telefone));
+	}
+	
+	
+	@PutMapping("/{id}")
+	@ResponseBody
+	@Operation(summary = "Atualizar um cliente em expecifíco")
+	public String atualizarCliente(@PathVariable("id") Long id, String cpf, String nome, String email, String telefone, String endereco) throws Exception {
+		Cliente cBusca = clienteServ.buscarPeloId(id);
+		if(cBusca==null) {			
+			return "Cliente não achado";
+		}else {
+			return clienteServ.atualizarCliente(id, cpf, nome, email, telefone, endereco);
+		}
+	}	
+	
+	
+	
+
+	/*
 	@PostMapping
 	@ResponseBody
 	@Operation(summary = "Adicionar um cliente em específico")
@@ -85,6 +102,7 @@ public class ClienteRestController {
 		List<Cliente> clientes = clienteServ.listarClientes();
 		return ResponseEntity.ok(clientes);
 	}
+	*/
     
 }
 

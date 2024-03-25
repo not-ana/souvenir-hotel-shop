@@ -49,19 +49,6 @@ public class Pessoa implements Serializable {
 	
 	@Column(name = "endereco", length = 200)
 	private String endereco;
-
-	
-	/*
-	@OneToOne
-	@JoinColumn(name = "fk_cliente")
-	private Login logins;
-	*/
-	
-	/*
-	@OneToMany
-	@JoinColumn(name = "id_cliente")
-	private List<Pedido> pedidos;
-	*/
 	
 	
 	@ManyToOne()

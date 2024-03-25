@@ -1,28 +1,30 @@
 package br.edu.iff.ccc.bsi.souvenirShop.model;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import jakarta.persistence.Transient;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.PastOrPresent;
+import jakarta.validation.constraints.Pattern;
 
 @Entity
 public class Pedido implements Serializable {
@@ -41,29 +43,29 @@ public class Pedido implements Serializable {
 	private double subtotal;
 	
 	
-	@NotNull
-	@NotEmpty
+	@PastOrPresent(message="Não pode ser no futuro")
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "data_pedido")
-	private LocalDateTime dataPedido;
+	private Calendar dataPedido;
+		
 
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "data_entrega")
-	private LocalDateTime dataEntrega;
+	private Calendar dataEntrega;
 	
 	
-	@OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL)
-	@JsonManagedReference
-	private List<Item> itens;
+	@ManyToMany
+	@JoinTable(name = "associacao_pedido_item",
+				joinColumns = @JoinColumn(name = "fk_pedido"),
+				inverseJoinColumns = @JoinColumn(name = "fk_item"))
+	private List<Item> item;
 
-	@NotNull
-	@NotEmpty
-	@Size(min = 3, max = 30, message = "Tipo deve ter entre 3 e 30 caracteres")
-	private String formaPagamento;
-	
 	
 	private boolean concluido;
 	
+	@NotBlank(message="Não pode ser em branco ou nulo")
+	@Pattern(regexp="[0-9]{3}.[0-9]{3}.[0-9]{3}-[0-9]{2}", message="Deve seguir o padrão do CPF")
+	private String cpfCliente = " ";
 	
 	@ManyToOne
 	@JoinColumn(name = "cliente_id")
@@ -74,19 +76,17 @@ public class Pedido implements Serializable {
 	public Pedido() {}
 	
 	
+	
 
-
-	public Pedido(Cliente cliente, String formaPagamento) {
-		this.cliente = cliente;
-		this.subtotal = 0;
+	public Pedido(String cpfCliente) {
+		this.concluido = false;
+		this.cpfCliente = cpfCliente;
 		this.dataPedido = null;
 		this.dataEntrega = null;
-		this.itens = new ArrayList<>();
-		this.formaPagamento = formaPagamento;
-		this.concluido = false;
+		this.item = new ArrayList<>();
 	}
 
-
+	
 
 
 	public Long getId() {
@@ -104,48 +104,12 @@ public class Pedido implements Serializable {
 	}
 
 
-	public void setSubtotal(double subtotal) {
-		this.subtotal = subtotal;
+	public List<Item> getItem() {
+		return item;
 	}
 
-
-	public LocalDateTime getDataPedido() {
-		return dataPedido;
-	}
-
-
-	public void setDataPedido(LocalDateTime dataPedido) {
-		this.dataPedido = dataPedido;
-	}
-
-
-	public LocalDateTime getDataEntrega() {
-		return dataEntrega;
-	}
-
-
-	public void setDataEntrega(LocalDateTime dataEntrega) {
-		this.dataEntrega = dataEntrega;
-	}
-
-
-	public List<Item> getItens() {
-		return itens;
-	}
-
-
-	public void setItens(List<Item> itens) {
-		this.itens = itens;
-	}
-
-
-	public String getFormaPagamento() {
-		return formaPagamento;
-	}
-
-
-	public void setFormaPagamento(String formaPagamento) {
-		this.formaPagamento = formaPagamento;
+	public void setItem(List<Item> item) {
+		this.item = item;
 	}
 
 
@@ -157,26 +121,67 @@ public class Pedido implements Serializable {
 	public void setConcluido(boolean concluido) {
 		this.concluido = concluido;
 	}
-	
-	
+
 	public Cliente getCliente() {
 		return cliente;
 	}
 
-	
+
 	public void setCliente(Cliente cliente) {
 		this.cliente = cliente;
 	}
-	
-	public boolean Concluido() {
-		return concluido;
-	}
+
 
 	public void concluir() {
 		this.concluido = true;
-		this.dataPedido = LocalDateTime.now();
-		this.dataEntrega = LocalDateTime.now();
+		this.dataPedido = Calendar.getInstance();
+		this.dataEntrega = Calendar.getInstance();
+	}
+	
+
+
+	public String getDataPedido() {
+		if (dataPedido != null) {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+            return dateFormat.format(dataPedido.getTime());
+        } else {
+            return "";
+        }
+	}
+
+	public void setDataPedido(Calendar dataPedido) {
+		this.dataPedido = dataPedido;
 	}
 
 
+	public void setDataEntrega(Calendar dataEntrega) {
+		this.dataEntrega = dataEntrega;
+	}
+
+
+	public String getCpfCliente() {
+		return cpfCliente;
+	}
+
+
+	public void setCpfCliente(String cpfCliente) {
+		this.cpfCliente = cpfCliente;
+	}
+
+
+	public void setSubtotal(double subtotal) {
+		this.subtotal = subtotal;
+	}
+	
+	public void addItem(Item item) {
+		this.item.add(item);
+        subtotal += item.getQuantidade() * item.getProduto().getPreco();
+	}
+
+	
+	public void removerItem(Item item) {
+		this.item.remove(item);
+        subtotal -= item.getQuantidade() * item.getProduto().getPreco();
+	}
+	
 }
